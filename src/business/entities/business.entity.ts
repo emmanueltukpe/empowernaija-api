@@ -7,36 +7,44 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
-} from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Invoice } from '../../invoice/entities/invoice.entity';
-import { TaxCalculation } from '../../tax-calculation/entities/tax-calculation.entity';
+} from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { Invoice } from "../../invoice/entities/invoice.entity";
+import { TaxCalculation } from "../../tax-calculation/entities/tax-calculation.entity";
 
 export enum BusinessSize {
-  MICRO = 'micro', // Turnover ≤ ₦10M
-  SMALL = 'small', // Turnover ≤ ₦50-100M
-  MEDIUM = 'medium', // Turnover ≤ ₦500M
-  LARGE = 'large', // Turnover > ₦500M
+  MICRO = "micro", // Turnover ≤ ₦10M
+  SMALL = "small", // Turnover ≤ ₦50-100M
+  MEDIUM = "medium", // Turnover ≤ ₦500M
+  LARGE = "large", // Turnover > ₦500M
 }
 
 export enum BusinessSector {
-  AGRICULTURE = 'agriculture',
-  MANUFACTURING = 'manufacturing',
-  RETAIL = 'retail',
-  SERVICES = 'services',
-  TECHNOLOGY = 'technology',
-  HEALTHCARE = 'healthcare',
-  EDUCATION = 'education',
-  CONSTRUCTION = 'construction',
-  HOSPITALITY = 'hospitality',
-  TRANSPORT = 'transport',
-  FINANCE = 'finance',
-  OTHER = 'other',
+  AGRICULTURE = "agriculture",
+  MANUFACTURING = "manufacturing",
+  RETAIL = "retail",
+  SERVICES = "services",
+  TECHNOLOGY = "technology",
+  HEALTHCARE = "healthcare",
+  EDUCATION = "education",
+  CONSTRUCTION = "construction",
+  HOSPITALITY = "hospitality",
+  TRANSPORT = "transport",
+  FINANCE = "finance",
+  OTHER = "other",
 }
 
-@Entity('businesses')
+export enum BusinessType {
+  FOR_PROFIT = "for_profit",
+  NGO = "ngo",
+  CHARITY = "charity",
+  RELIGIOUS = "religious",
+  EDUCATIONAL = "educational",
+}
+
+@Entity("businesses")
 export class Business {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
@@ -52,22 +60,22 @@ export class Business {
   tinVerified: boolean;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: BusinessSector,
   })
   sector: BusinessSector;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: BusinessSize,
     default: BusinessSize.MICRO,
   })
   size: BusinessSize;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
+  @Column({ type: "decimal", precision: 15, scale: 2, default: 0 })
   estimatedAnnualTurnover: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
+  @Column({ type: "decimal", precision: 15, scale: 2, default: 0 })
   estimatedAssetValue: number;
 
   @Column({ nullable: true })
@@ -88,17 +96,36 @@ export class Business {
   @Column({ nullable: true })
   website: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: "date", nullable: true })
   registrationDate: Date;
 
   @Column({ default: false })
   vatRegistered: boolean;
+
+  @Column({
+    type: "enum",
+    enum: BusinessType,
+    default: BusinessType.FOR_PROFIT,
+  })
+  businessType: BusinessType;
+
+  @Column({ default: false })
+  taxExemptStatus: boolean;
+
+  @Column({ nullable: true })
+  exemptionCertificateUrl: string;
+
+  @Column({ default: false })
+  isAgriculturalBusiness: boolean;
+
+  @Column({ type: "date", nullable: true })
+  agriculturalBusinessStartDate: Date;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -107,8 +134,8 @@ export class Business {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, (user) => user.businesses, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'ownerId' })
+  @ManyToOne(() => User, (user) => user.businesses, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "ownerId" })
   owner: User;
 
   @Column()

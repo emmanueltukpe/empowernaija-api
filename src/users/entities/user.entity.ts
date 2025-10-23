@@ -6,30 +6,31 @@ import {
   UpdateDateColumn,
   OneToMany,
   OneToOne,
-} from 'typeorm';
-import { Exclude } from 'class-transformer';
-import { Business } from '../../business/entities/business.entity';
-import { IncomeRecord } from '../../income/entities/income-record.entity';
-import { TaxCalculation } from '../../tax-calculation/entities/tax-calculation.entity';
-import { ForumPost } from '../../forum/entities/forum-post.entity';
-import { Notification } from '../../notifications/entities/notification.entity';
+} from "typeorm";
+import { Exclude } from "class-transformer";
+import { Business } from "../../business/entities/business.entity";
+import { IncomeRecord } from "../../income/entities/income-record.entity";
+import { TaxCalculation } from "../../tax-calculation/entities/tax-calculation.entity";
+import { ForumPost } from "../../forum/entities/forum-post.entity";
+import { Notification } from "../../notifications/entities/notification.entity";
 
 export enum UserRole {
-  EMPLOYEE = 'employee',
-  FREELANCER = 'freelancer',
-  BUSINESS_OWNER = 'business_owner',
-  UNEMPLOYED = 'unemployed',
-  ADMIN = 'admin',
+  EMPLOYEE = "employee",
+  FREELANCER = "freelancer",
+  BUSINESS_OWNER = "business_owner",
+  INFORMAL_WORKER = "informal_worker",
+  UNEMPLOYED = "unemployed",
+  ADMIN = "admin",
 }
 
 export enum AuthProvider {
-  LOCAL = 'local',
-  GOOGLE = 'google',
+  LOCAL = "local",
+  GOOGLE = "google",
 }
 
-@Entity('users')
+@Entity("users")
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -49,7 +50,7 @@ export class User {
   phoneNumber: string;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: UserRole,
     array: true,
     default: [UserRole.EMPLOYEE],
@@ -57,7 +58,7 @@ export class User {
   roles: UserRole[];
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: AuthProvider,
     default: AuthProvider.LOCAL,
   })
@@ -91,7 +92,7 @@ export class User {
   @Exclude()
   refreshToken: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   lastLoginAt: Date;
 
   @CreateDateColumn()

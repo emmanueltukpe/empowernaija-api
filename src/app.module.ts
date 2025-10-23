@@ -16,6 +16,12 @@ import { ComplianceModule } from "./compliance/compliance.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { LearningModule } from "./learning/learning.module";
 import { ForumModule } from "./forum/forum.module";
+import { DocumentsModule } from "./documents/documents.module";
+import { TaxReturnModule } from "./tax-return/tax-return.module";
+import { CapitalInvestmentModule } from "./capital-investment/capital-investment.module";
+import { DonationsModule } from "./donations/donations.module";
+import { TaxConfigModule } from "./tax-config/tax-config.module";
+import { AuditModule } from "./audit/audit.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { dataSourceOptions } from "./config/typeorm.config";
@@ -79,6 +85,12 @@ import { dataSourceOptions } from "./config/typeorm.config";
     NotificationsModule,
     LearningModule,
     ForumModule,
+    DocumentsModule,
+    TaxReturnModule,
+    CapitalInvestmentModule,
+    DonationsModule,
+    TaxConfigModule,
+    AuditModule,
   ],
   controllers: [AppController],
   providers: [AppService],
