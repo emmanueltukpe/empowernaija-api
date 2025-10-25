@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Param,
-  UseGuards,
-  Req,
-} from "@nestjs/common";
+import { Controller, Post, Get, Body, Param, UseGuards } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
@@ -15,7 +7,6 @@ import {
   ApiParam,
 } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
-import { Request } from "express";
 import { TaxCalculationService } from "../services/tax-calculation.service";
 import {
   PersonalIncomeTaxDto,
@@ -27,11 +18,15 @@ import {
   SaveTaxCalculationRequestDto,
 } from "../dto/tax-calculation.dto";
 import { User } from "../../users/entities/user.entity";
+import { BaseController } from "../../common/controllers";
+import { CurrentUser } from "../../common/decorators";
 
 @ApiTags("Tax Calculations")
 @Controller("tax")
-export class TaxCalculationController {
-  constructor(private readonly taxCalculationService: TaxCalculationService) {}
+export class TaxCalculationController extends BaseController {
+  constructor(private readonly taxCalculationService: TaxCalculationService) {
+    super();
+  }
 
   @Post("calculate/pit")
   @ApiOperation({
@@ -204,10 +199,9 @@ export class TaxCalculationController {
     description: "Unauthorized - valid JWT token required",
   })
   async saveTaxCalculation(
-    @Req() req: Request,
+    @CurrentUser() user: User,
     @Body() body: SaveTaxCalculationRequestDto
   ) {
-    const user = req.user as User;
     return this.taxCalculationService.saveTaxCalculation(
       body.calculation,
       user.id,
@@ -233,8 +227,7 @@ export class TaxCalculationController {
     status: 401,
     description: "Unauthorized - valid JWT token required",
   })
-  async getUserHistory(@Req() req: Request) {
-    const user = req.user as User;
+  async getUserHistory(@CurrentUser() user: User) {
     return this.taxCalculationService.getUserTaxCalculations(user.id);
   }
 

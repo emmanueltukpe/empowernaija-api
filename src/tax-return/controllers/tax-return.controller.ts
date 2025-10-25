@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   UseGuards,
-  Req,
   Res,
 } from "@nestjs/common";
 import {
@@ -19,27 +18,27 @@ import {
   ApiBody,
 } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { TaxReturnService } from "../services/tax-return.service";
 import { PdfGeneratorService } from "../services/pdf-generator.service";
 import { TaxReturn } from "../entities/tax-return.entity";
 import { TaxType } from "../../tax-calculation/entities/tax-calculation.entity";
 import { User } from "../../users/entities/user.entity";
 import * as fs from "fs";
-
-interface AuthenticatedRequest extends Request {
-  user: User;
-}
+import { BaseController } from "../../common/controllers";
+import { CurrentUser } from "../../common/decorators";
 
 @ApiTags("Tax Returns")
 @Controller("tax-returns")
 @UseGuards(AuthGuard("jwt"))
 @ApiBearerAuth()
-export class TaxReturnController {
+export class TaxReturnController extends BaseController {
   constructor(
     private readonly taxReturnService: TaxReturnService,
     private readonly pdfGeneratorService: PdfGeneratorService
-  ) {}
+  ) {
+    super();
+  }
 
   @Post("generate")
   @ApiOperation({
@@ -94,11 +93,11 @@ export class TaxReturnController {
     description: "No income records found for the specified tax year",
   })
   async generateTaxReturn(
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser() user: User,
     @Body() body: { taxYear: number; taxType: TaxType; businessId?: string }
   ): Promise<TaxReturn> {
     return await this.taxReturnService.generateTaxReturn(
-      req.user.id,
+      user.id,
       body.taxYear,
       body.taxType,
       body.businessId
@@ -123,10 +122,8 @@ export class TaxReturnController {
     status: 401,
     description: "Unauthorized - valid JWT token required",
   })
-  async getUserTaxReturns(
-    @Req() req: AuthenticatedRequest
-  ): Promise<TaxReturn[]> {
-    return await this.taxReturnService.getUserTaxReturns(req.user.id);
+  async getUserTaxReturns(@CurrentUser() user: User): Promise<TaxReturn[]> {
+    return await this.taxReturnService.getUserTaxReturns(user.id);
   }
 
   @Get(":id")
@@ -377,11 +374,10 @@ export class TaxReturnController {
   })
   async generatePDF(
     @Param("id") id: string,
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser() user: User,
     @Res() res: Response
   ): Promise<void> {
     const taxReturn = await this.taxReturnService.getTaxReturn(id);
-    const user = req.user;
     const business = taxReturn.business;
 
     const pdfPath = await this.pdfGeneratorService.generateFIRSCompliantPDF(

@@ -9,22 +9,22 @@ import {
   DefaultValuePipe,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
-import {
-  AuditService,
-  AuditLogFilter,
-} from "../services/audit.service";
+import { AuditService, AuditLogFilter } from "../services/audit.service";
 import {
   AuditLog,
   AuditAction,
   AuditEntityType,
 } from "../entities/audit-log.entity";
+import { BaseController } from "../../common/controllers";
 
 @ApiTags("Audit")
 @Controller("audit")
-export class AuditController {
+export class AuditController extends BaseController {
   private readonly logger = new Logger(AuditController.name);
 
-  constructor(private readonly auditService: AuditService) {}
+  constructor(private readonly auditService: AuditService) {
+    super();
+  }
 
   @Get()
   @ApiOperation({ summary: "Get audit logs with filters (Admin only)" })
@@ -113,4 +113,3 @@ export class AuditController {
     );
   }
 }
-

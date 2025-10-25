@@ -10,7 +10,6 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  Request,
   HttpCode,
   HttpStatus,
 } from "@nestjs/common";
@@ -28,7 +27,7 @@ import {
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
-import { UserRole } from "../../users/entities/user.entity";
+import { User, UserRole } from "../../users/entities/user.entity";
 import { DocumentService } from "../services/document.service";
 import { StorageService } from "../services/storage.service";
 import {
@@ -41,16 +40,20 @@ import {
   DocumentType,
   DocumentStatus,
 } from "../entities/document.entity";
+import { BaseController } from "../../common/controllers";
+import { CurrentUser } from "../../common/decorators";
 
 @ApiTags("Documents")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller("documents")
-export class DocumentController {
+export class DocumentController extends BaseController {
   constructor(
     private readonly documentService: DocumentService,
     private readonly storageService: StorageService
-  ) {}
+  ) {
+    super();
+  }
 
   @Post("upload")
   @ApiOperation({
@@ -125,9 +128,9 @@ export class DocumentController {
   async uploadDocument(
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: UploadDocumentDto,
-    @Request() req
+    @CurrentUser() user: User
   ): Promise<Document> {
-    const userId = req.user.userId;
+    const userId = user.id;
 
     // Validate file
     this.documentService.validateFile(file);
@@ -173,11 +176,11 @@ export class DocumentController {
     description: "Unauthorized - valid JWT token required",
   })
   async getUserDocuments(
-    @Request() req,
+    @CurrentUser() user: User,
     @Query("taxYear") taxYear?: number,
     @Query("documentType") documentType?: DocumentType
   ): Promise<Document[]> {
-    const userId = req.user.userId;
+    const userId = user.id;
     return this.documentService.getUserDocuments(userId, taxYear, documentType);
   }
 
@@ -259,9 +262,9 @@ export class DocumentController {
   })
   async getDocument(
     @Param("id") id: string,
-    @Request() req
+    @CurrentUser() user: User
   ): Promise<Document> {
-    const userId = req.user.userId;
+    const userId = user.id;
     return this.documentService.getDocumentById(id, userId);
   }
 
@@ -316,9 +319,9 @@ export class DocumentController {
   async updateDocument(
     @Param("id") id: string,
     @Body() dto: UpdateDocumentDto,
-    @Request() req
+    @CurrentUser() user: User
   ): Promise<Document> {
-    const userId = req.user.userId;
+    const userId = user.id;
     return this.documentService.updateDocument(id, userId, dto);
   }
 
@@ -354,8 +357,11 @@ export class DocumentController {
     description:
       "Cannot delete document - referenced in submitted tax return or already verified",
   })
-  async deleteDocument(@Param("id") id: string, @Request() req): Promise<void> {
-    const userId = req.user.userId;
+  async deleteDocument(
+    @Param("id") id: string,
+    @CurrentUser() user: User
+  ): Promise<void> {
+    const userId = user.id;
     await this.documentService.deleteDocument(id, userId);
   }
 
@@ -419,9 +425,9 @@ export class DocumentController {
   async verifyDocument(
     @Param("id") id: string,
     @Body() dto: VerifyDocumentDto,
-    @Request() req
+    @CurrentUser() user: User
   ): Promise<Document> {
-    const adminUserId = req.user.userId;
+    const adminUserId = user.id;
     return this.documentService.verifyDocument(id, adminUserId, dto);
   }
 

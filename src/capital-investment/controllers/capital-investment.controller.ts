@@ -25,15 +25,18 @@ import {
   UpdateCapitalExpenditureDto,
 } from "../dto/capital-expenditure.dto";
 import { CapitalExpenditure } from "../entities/capital-expenditure.entity";
+import { BaseController } from "../../common/controllers";
 
 @ApiTags("Capital Investment & Tax Credits")
 @Controller("capital-investment")
 @UseGuards(AuthGuard("jwt"))
 @ApiBearerAuth()
-export class CapitalInvestmentController {
+export class CapitalInvestmentController extends BaseController {
   constructor(
     private readonly capitalInvestmentService: CapitalInvestmentService
-  ) {}
+  ) {
+    super();
+  }
 
   @Post("expenditures")
   @ApiOperation({

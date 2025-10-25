@@ -1,11 +1,14 @@
 import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AppService } from "./app.service";
+import { BaseController } from "./common/controllers";
 
 @ApiTags("Health")
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class AppController extends BaseController {
+  constructor(private readonly appService: AppService) {
+    super();
+  }
 
   @Get("health")
   @ApiOperation({
